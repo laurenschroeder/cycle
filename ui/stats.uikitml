@@ -1,0 +1,193 @@
+<style>
+  .panel {
+    display: flex;
+    flex-direction: column;
+    background-color: #09090b;
+    border-color: #27272a;
+    border-width: 0.15;
+    border-radius: 3;
+    padding: 2.5;
+    width: 60;
+  }
+
+  .header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  #status-dot {
+    width: 1.8;
+    height: 1.8;
+    border-radius: 0.9;
+    background-color: #52525b;
+    margin-right: 1;
+  }
+
+  .title {
+    font-size: 4;
+    font-weight: bold;
+    color: #fafafa;
+    flex-grow: 1;
+  }
+
+  #connect-btn {
+    padding-top: 0.8;
+    padding-bottom: 0.8;
+    padding-left: 2;
+    padding-right: 2;
+    background-color: #fafafa;
+    color: #09090b;
+    border-radius: 1.5;
+    font-size: 2;
+    font-weight: medium;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .divider {
+    height: 0.15;
+    background-color: #27272a;
+    margin-top: 2;
+    margin-bottom: 2;
+  }
+
+  .section-label {
+    font-size: 1.8;
+    color: #71717a;
+    font-weight: medium;
+    text-align: center;
+    margin-bottom: 1;
+  }
+
+  /* gauge track stretches to panel inner width (55 units) via flex default */
+  .gauge-track {
+    height: 2.5;
+    background-color: #27272a;
+    border-radius: 1.25;
+    display: flex;
+    flex-direction: row;
+  }
+
+  #rpm-fill {
+    width: 0;
+    height: 2.5;
+    background-color: #22c55e;
+    border-radius: 1.25;
+  }
+
+  #rpm-value {
+    font-size: 10;
+    font-weight: bold;
+    color: #fafafa;
+    text-align: center;
+    margin-top: 0.5;
+  }
+
+  .rpm-unit {
+    font-size: 2.5;
+    color: #a1a1aa;
+    text-align: center;
+  }
+
+  .stats-row {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .stat-card {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #18181b;
+    border-radius: 2;
+    padding: 1.5;
+    margin-right: 1.5;
+  }
+
+  .stat-card-last {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #18181b;
+    border-radius: 2;
+    padding: 1.5;
+  }
+
+  .stat-label {
+    font-size: 1.6;
+    color: #71717a;
+    font-weight: medium;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 4;
+    font-weight: bold;
+    color: #fafafa;
+    text-align: center;
+    margin-top: 0.3;
+  }
+
+  .stat-unit {
+    font-size: 1.4;
+    color: #a1a1aa;
+    text-align: center;
+  }
+
+  .second-row {
+    margin-top: 1.5;
+  }
+</style>
+
+<div class="panel">
+  <div class="header">
+    <div id="status-dot"></div>
+    <span class="title">Cycle</span>
+    <button id="connect-btn">Connect</button>
+  </div>
+
+  <div class="divider"></div>
+
+  <span class="section-label">CADENCE</span>
+  <div class="gauge-track">
+    <div id="rpm-fill"></div>
+  </div>
+  <span id="rpm-value">0</span>
+  <span class="rpm-unit">RPM</span>
+
+  <div class="divider"></div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-label">SPEED</span>
+      <span id="stat-speed" class="stat-value">0.0</span>
+      <span class="stat-unit">km/h</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">POWER</span>
+      <span id="stat-power" class="stat-value">0</span>
+      <span class="stat-unit">W</span>
+    </div>
+    <div class="stat-card-last">
+      <span class="stat-label">DISTANCE</span>
+      <span id="stat-distance" class="stat-value">0.00</span>
+      <span class="stat-unit">km</span>
+    </div>
+  </div>
+
+  <div class="stats-row second-row">
+    <div class="stat-card">
+      <span class="stat-label">HEART RATE</span>
+      <span id="stat-hr" class="stat-value">--</span>
+      <span class="stat-unit">bpm</span>
+    </div>
+    <div class="stat-card-last">
+      <span class="stat-label">ELAPSED</span>
+      <span id="stat-time" class="stat-value">0:00</span>
+      <span class="stat-unit"> </span>
+    </div>
+  </div>
+</div>
