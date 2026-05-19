@@ -64,12 +64,6 @@ World.create(document.getElementById("scene-container") as HTMLDivElement, {
     spatialUI: { forwardHtmlEvents: true },
   },
 }).then((world) => {
-  // Hide the native button in VR (UIKit panel button handles it there)
-  world.visibilityState.subscribe((state) => {
-    bleControls.style.display =
-      state === VisibilityState.NonImmersive ? "" : "none";
-  });
-
   const statsPanel = world
     .createTransformEntity()
     .addComponent(PanelUI, {
@@ -77,14 +71,27 @@ World.create(document.getElementById("scene-container") as HTMLDivElement, {
       maxWidth: 0.55,
       maxHeight: 0.9,
     })
-    .addComponent(Interactable)
-    .addComponent(ScreenSpace, {
-      top: "10px",
-      left: "10px",
-      height: "95vh",
-    });
+    .addComponent(Interactable);
 
   statsPanel.object3D!.position.set(0, 1.4, -1.5);
+
+  // Browser: pin panel as a 2D overlay so it's always visible regardless of camera.
+  // VR: remove ScreenSpace so the panel lives at its world position and XR rays
+  //     can properly hit-test it (ScreenSpace breaks UIKit click dispatch in XR).
+  let screenSpaceActive = false;
+  world.visibilityState.subscribe((state) => {
+    bleControls.style.display =
+      state === VisibilityState.NonImmersive ? "" : "none";
+
+    const browser = state === VisibilityState.NonImmersive;
+    if (browser && !screenSpaceActive) {
+      statsPanel.addComponent(ScreenSpace, { top: "10px", left: "10px", height: "95vh" });
+      screenSpaceActive = true;
+    } else if (!browser && screenSpaceActive) {
+      statsPanel.removeComponent(ScreenSpace);
+      screenSpaceActive = false;
+    }
+  });
 
   world.registerSystem(CycleSystem);
 });

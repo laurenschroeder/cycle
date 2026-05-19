@@ -5,16 +5,13 @@ import {
   eq,
   UIKitDocument,
   UIKit,
-  VisibilityState,
 } from "@iwsdk/core";
 
 import {
   onStats,
   onStatus,
-  connectFTMS,
   disconnectFTMS,
   startSimulation,
-  hasBluetooth,
   getStatus,
 } from "./ftms.js";
 
@@ -44,30 +41,21 @@ export class CycleSystem extends createSystem({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const set = (id: string, props: Record<string, unknown>) => (doc.getElementById(id) as any).setProperties(props);
 
-    let inVR = this.world.visibilityState.peek() !== VisibilityState.NonImmersive;
-
+    // UIKit events are synthetic (canvas hit-test), so they never carry a trusted
+    // user activation — requestDevice() would always fail silently. The panel
+    // button only ever simulates; the native HTML button handles real BT connect.
     const updateBtn = (status = getStatus()) => {
       const dot: Record<string, unknown> = { backgroundColor: "#52525b" };
-      const btn: Record<string, unknown> = { backgroundColor: "#fafafa", color: "#09090b" };
+      const btn: Record<string, unknown> = { backgroundColor: "#3f3f46", color: "#fafafa", text: "Simulate" };
 
       if (status === "connected") {
         dot.backgroundColor = "#22c55e";
         btn.text = "Disconnect";
         btn.backgroundColor = "#dc2626";
-        btn.color = "#fafafa";
       } else if (status === "connecting") {
         dot.backgroundColor = "#f59e0b";
         btn.text = "Connecting...";
         btn.backgroundColor = "#71717a";
-        btn.color = "#fafafa";
-      } else if (inVR) {
-        // requestDevice() can't show a picker inside an active XR session —
-        // offer simulation as the in-VR fallback instead.
-        btn.text = "Simulate";
-        btn.backgroundColor = "#3f3f46";
-        btn.color = "#fafafa";
-      } else {
-        btn.text = hasBluetooth() ? "Connect" : "Simulate";
       }
 
       set("status-dot", dot);
@@ -78,20 +66,11 @@ export class CycleSystem extends createSystem({
       if (getStatus() === "connected") {
         disconnectFTMS();
       } else if (getStatus() === "disconnected") {
-        if (inVR || !hasBluetooth()) {
-          startSimulation();
-        } else {
-          connectFTMS().catch(console.error);
-        }
+        startSimulation();
       }
     });
 
     this.cleanupFuncs.push(
-      this.world.visibilityState.subscribe((state) => {
-        inVR = state !== VisibilityState.NonImmersive;
-        updateBtn();
-      }),
-
       onStatus((status) => updateBtn(status)),
 
       onStats((stats) => {
