@@ -23,7 +23,7 @@ const MAX_RPM = 120;
 export class CycleSystem extends createSystem({
   statsPanel: {
     required: [PanelUI, PanelDocument],
-    where: [eq(PanelUI, "config", "./ui/stats.json")],
+    where: [eq(PanelUI, "config", "/ui/stats.json")],
   },
 }) {
   private panelBound = false;
@@ -71,7 +71,7 @@ export class CycleSystem extends createSystem({
           btn.color = "#fafafa";
         } else if (status === "connecting") {
           dot.backgroundColor = "#f59e0b";
-          btn.text = "Connecting…";
+          btn.text = "Connecting...";
           btn.backgroundColor = "#71717a";
           btn.color = "#fafafa";
         }

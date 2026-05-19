@@ -39,7 +39,7 @@ onStatus((status) => {
     bleBtn.style.background = "#dc2626";
     bleBtn.style.color = "#fafafa";
   } else if (status === "connecting") {
-    bleBtn.textContent = "Connecting…";
+    bleBtn.textContent = "Connecting...";
     bleBtn.style.background = "#71717a";
     bleBtn.style.color = "#fafafa";
   } else {
@@ -73,7 +73,7 @@ World.create(document.getElementById("scene-container") as HTMLDivElement, {
   const statsPanel = world
     .createTransformEntity()
     .addComponent(PanelUI, {
-      config: "./ui/stats.json",
+      config: "/ui/stats.json",
       maxWidth: 0.55,
       maxHeight: 0.9,
     })
