@@ -5,6 +5,7 @@ import {
   eq,
   UIKitDocument,
   UIKit,
+  VisibilityState,
 } from "@iwsdk/core";
 
 import {
@@ -43,41 +44,55 @@ export class CycleSystem extends createSystem({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const set = (id: string, props: Record<string, unknown>) => (doc.getElementById(id) as any).setProperties(props);
 
-    // UIKit button click — works in VR via ray interaction
+    let inVR = this.world.visibilityState.peek() !== VisibilityState.NonImmersive;
+
+    const updateBtn = (status = getStatus()) => {
+      const dot: Record<string, unknown> = { backgroundColor: "#52525b" };
+      const btn: Record<string, unknown> = { backgroundColor: "#fafafa", color: "#09090b" };
+
+      if (status === "connected") {
+        dot.backgroundColor = "#22c55e";
+        btn.text = "Disconnect";
+        btn.backgroundColor = "#dc2626";
+        btn.color = "#fafafa";
+      } else if (status === "connecting") {
+        dot.backgroundColor = "#f59e0b";
+        btn.text = "Connecting...";
+        btn.backgroundColor = "#71717a";
+        btn.color = "#fafafa";
+      } else if (inVR) {
+        // requestDevice() can't show a picker inside an active XR session —
+        // offer simulation as the in-VR fallback instead.
+        btn.text = "Simulate";
+        btn.backgroundColor = "#3f3f46";
+        btn.color = "#fafafa";
+      } else {
+        btn.text = hasBluetooth() ? "Connect" : "Simulate";
+      }
+
+      set("status-dot", dot);
+      set("connect-btn", btn);
+    };
+
     el("connect-btn").addEventListener("click", () => {
       if (getStatus() === "connected") {
         disconnectFTMS();
       } else if (getStatus() === "disconnected") {
-        if (hasBluetooth()) {
-          connectFTMS().catch(console.error);
-        } else {
+        if (inVR || !hasBluetooth()) {
           startSimulation();
+        } else {
+          connectFTMS().catch(console.error);
         }
       }
     });
 
     this.cleanupFuncs.push(
-      onStatus((status) => {
-        const dot: Record<string, unknown> = { backgroundColor: "#52525b" };
-        const btn: Record<string, unknown> = {
-          text: hasBluetooth() ? "Connect" : "Simulate",
-          backgroundColor: "#fafafa",
-          color: "#09090b",
-        };
-        if (status === "connected") {
-          dot.backgroundColor = "#22c55e";
-          btn.text = "Disconnect";
-          btn.backgroundColor = "#dc2626";
-          btn.color = "#fafafa";
-        } else if (status === "connecting") {
-          dot.backgroundColor = "#f59e0b";
-          btn.text = "Connecting...";
-          btn.backgroundColor = "#71717a";
-          btn.color = "#fafafa";
-        }
-        set("status-dot", dot);
-        set("connect-btn", btn);
+      this.world.visibilityState.subscribe((state) => {
+        inVR = state !== VisibilityState.NonImmersive;
+        updateBtn();
       }),
+
+      onStatus((status) => updateBtn(status)),
 
       onStats((stats) => {
         const rpm = Math.round(stats.cadence);
