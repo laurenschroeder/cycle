@@ -122,9 +122,7 @@ export async function connectFTMS(): Promise<void> {
     emitStatus('disconnected');
     const name = (err as DOMException)?.name ?? '';
     const msg = (err as Error)?.message ?? '';
-    const expected = name === 'NotFoundError' || name === 'NotAllowedError' ||
-      name === 'NetworkError' || msg.startsWith('NetworkError');
-    if (!expected) console.error('[FTMS]', err);
+    if (name !== 'NotFoundError') console.warn('[FTMS]', name, msg);
   }
 }
 
